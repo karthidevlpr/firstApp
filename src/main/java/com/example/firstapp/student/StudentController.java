@@ -20,17 +20,17 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<Student> getStudents(){
+    public ResponseEntity<List<Student>> getStudents(){
         return studentService.getStudents();
     }
 
     @GetMapping(path = "{studentId}")
-    public Optional<Student> fetchStudent(@PathVariable("studentId") String id) {
+    public ResponseEntity<Student> fetchStudent(@PathVariable("studentId") String id) {
         return studentService.fetchStudent(id);
     }
 
     @PostMapping
-    public ResponseEntity<String> addStudent(@RequestBody Student student) {
+    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
 
     }
@@ -38,6 +38,10 @@ public class StudentController {
     public ResponseEntity<String> deleteStudent(@PathVariable("studentId") String id){
          return studentService.deleteStudent(id);
 
+    }
+    @PutMapping(path = "{studentId}")
+    public ResponseEntity<Student> updateStudent(@PathVariable("studentId") String id, @RequestBody Student student){
+        return studentService.updateStudent(id, student);
     }
 
 }

@@ -21,18 +21,20 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public List<Student> getStudents(){
-        return studentRepository.findAll();
+    public ResponseEntity<List<Student>> getStudents(){
+        List<Student> students = studentRepository.findAll();
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(students);
     }
 
-    public ResponseEntity<String> addStudent(Student student) {
+    public ResponseEntity<Student> addStudent(Student student) {
+
         Optional<Student> studentEmail = studentRepository.findStudentByEmail(student.getEmail());
 
         if(studentEmail.isPresent()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already used");
         }
-        studentRepository.save(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Student created");
+        Student student1 = studentRepository.save(student);
+        return ResponseEntity.status(HttpStatus.CREATED).body(student1);
     }
 
     public ResponseEntity<String> deleteStudent(String id) {
@@ -45,12 +47,28 @@ public class StudentService {
         return ResponseEntity.status(HttpStatus.CREATED).body("Student deleted");
     }
 
-    public Optional<Student> fetchStudent(String id) {
-        boolean isExists = studentRepository.existsById(id);
+    public ResponseEntity<Student> fetchStudent(String id) {
+        Optional<Student> student = studentRepository.findById(id);
 
-        if(!isExists){
+        if(student.isPresent()){
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(student.get());
+        }else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
         }
-        return studentRepository.findById(id);
+    }
+
+    public ResponseEntity<Student> updateStudent(String id, Student student) {
+        Optional<Student> studentData = studentRepository.findById(id);
+        if(studentData.isPresent()){
+            Student student1 = studentData.get();
+            student1.setName(student.getName());
+            student1.setDob(student.getDob());
+            student1.setEmail(student.getEmail());
+            Student student2 = studentRepository.save(student1);
+            return ResponseEntity.status(HttpStatus.CREATED).body(student2);
+
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
+        }
     }
 }
